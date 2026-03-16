@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useVelocity,
+  useSpring,
+} from "motion/react";
 import { ArrowRight } from "lucide-react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
@@ -10,10 +16,30 @@ import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [smokeRevealed, setSmokeRevealed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const { scrollYProgress } = useScroll();
+  const scrollVelocity = useVelocity(scrollYProgress);
+  const scrollVelocitySpring = useSpring(scrollVelocity, {
+    damping: 20,
+    stiffness: 130,
+  });
+
+  const scrollSmokeY = useTransform(scrollYProgress, [0, 0.5], [-420, 0]);
+  const scrollSmokeYReverse = useTransform(scrollYProgress, [0, 0.5], [420, 0]);
+  const scrollSmokeX = useTransform(scrollYProgress, [0, 0.5], [-380, 0]);
+  const scrollSmokeXReverse = useTransform(scrollYProgress, [0, 0.5], [380, 0]);
+  const scrollSmokeOpacity = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.5], [0, 0.85, 0.7, 0.25]);
+
+  const scrollVelocityOffset = useTransform(scrollVelocitySpring, [-1, 0, 1], [-40, 0, 40]);
+  const topSmokeY = useTransform([scrollSmokeY, scrollVelocityOffset], ([y, v]) => y + v);
+  const bottomSmokeY = useTransform([scrollSmokeYReverse, scrollVelocityOffset], ([y, v]) => y - v);
+  const leftSmokeX = useTransform([scrollSmokeX, scrollVelocityOffset], ([x, v]) => x + v);
+  const rightSmokeX = useTransform([scrollSmokeXReverse, scrollVelocityOffset], ([x, v]) => x - v);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!heroRef.current) return;
+      if (!heroRef.current || isMobile) return;
       const { clientX, clientY } = e;
       const x = (clientX / window.innerWidth - 0.5) * 20;
       const y = (clientY / window.innerHeight - 0.5) * 20;
@@ -22,9 +48,20 @@ export default function Home() {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isMobile]);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mql.matches);
+    update();
+    mql.addEventListener?.("change", update);
+    return () => mql.removeEventListener?.("change", update);
   }, []);
 
   useEffect(() => {
+    // Ensure we always start at the top when this page mounts
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
     // Start the smoke reveal animation after a short delay
     const timer = setTimeout(() => {
       setSmokeRevealed(true);
@@ -37,6 +74,7 @@ export default function Home() {
   const headwear = getProductsByCategory("headwear");
   const smoking = getProductsByCategory("smoking");
   const socks = getProductsByCategory("socks");
+  const smokeParticleCount = isMobile ? 30 : 150;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -65,6 +103,52 @@ export default function Home() {
           />
         </div>
 
+        {/* Scroll-driven smoke from edges */}
+        <motion.div
+          className="absolute left-0 right-0 top-0 h-56 pointer-events-none"
+          style={{
+            zIndex: 25,
+            y: topSmokeY,
+            opacity: scrollSmokeOpacity,
+            background:
+              "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%)",
+            filter: "blur(90px)",
+          }}
+        />
+        <motion.div
+          className="absolute left-0 right-0 bottom-0 h-56 pointer-events-none"
+          style={{
+            zIndex: 25,
+            y: bottomSmokeY,
+            opacity: scrollSmokeOpacity,
+            background:
+              "radial-gradient(circle at 50% 100%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%)",
+            filter: "blur(90px)",
+          }}
+        />
+        <motion.div
+          className="absolute top-0 bottom-0 left-0 w-56 pointer-events-none"
+          style={{
+            zIndex: 25,
+            x: leftSmokeX,
+            opacity: scrollSmokeOpacity,
+            background:
+              "radial-gradient(circle at 0% 50%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)",
+            filter: "blur(90px)",
+          }}
+        />
+        <motion.div
+          className="absolute top-0 bottom-0 right-0 w-56 pointer-events-none"
+          style={{
+            zIndex: 25,
+            x: rightSmokeX,
+            opacity: scrollSmokeOpacity,
+            background:
+              "radial-gradient(circle at 100% 50%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)",
+            filter: "blur(90px)",
+          }}
+        />
+
         {/* Dense White Smoke Overlay */}
         <motion.div
           className="absolute inset-0 z-20"
@@ -76,8 +160,8 @@ export default function Home() {
           }}
         />
 
-        {/* Additional Smoke Particles for Depth */}
-        {[...Array(150)].map((_, i) => (
+        {/* Additional Smoke Particles for Depth (reduced on mobile) */}
+        {[...Array(smokeParticleCount)].map((_, i) => (
           <motion.div
             key={`smoke-${i}`}
             className="absolute blur-3xl"
@@ -103,7 +187,7 @@ export default function Home() {
         ))}
 
         {/* Hero Content */}
-        <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -111,7 +195,7 @@ export default function Home() {
           >
             {/* Brand Name - Always Visible */}
             <motion.h1
-              className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold mb-6 relative z-40"
+              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold mb-6 relative z-40"
               style={{
                 background:
                   "linear-gradient(135deg, #ffffff 0%, #9e9e9e 50%, #1a1a1a 100%)",
@@ -136,7 +220,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-xl sm:text-2xl md:text-3xl text-white/80 mb-12 max-w-3xl mx-auto"
+                className="text-base sm:text-xl md:text-2xl text-white/80 mb-10 max-w-3xl mx-auto"
               >
                 Streetwear Accessories That Define Your Drip
               </motion.p>
@@ -144,7 +228,7 @@ export default function Home() {
               {/* Floating Products */}
               <div
                 ref={heroRef}
-                className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-12 transition-transform duration-200 ease-out"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto mb-12 transition-transform duration-200 ease-out"
               >
                 {[
                   products.find((p) => p.category === "headwear"),
