@@ -228,7 +228,7 @@ export default function Home() {
               {/* Floating Products */}
               <div
                 ref={heroRef}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto mb-12 transition-transform duration-200 ease-out"
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto mb-12 transition-transform duration-200 ease-out"
               >
                 {[
                   products.find((p) => p.category === "headwear"),
