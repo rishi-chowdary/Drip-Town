@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ArrowLeft } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Link } from "react-router";
 
@@ -12,6 +12,10 @@ export default function Cart() {
   const [couponCode, setCouponCode] = useState("");
   const [couponMessage, setCouponMessage] = useState("");
   const [couponError, setCouponError] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   const handleApplyCoupon = () => {
     const result = applyCoupon(couponCode);

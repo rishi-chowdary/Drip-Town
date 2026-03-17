@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
@@ -10,6 +11,10 @@ export default function CategoryPage() {
   const { category } = useParams();
   const navigate = useNavigate();
   const products = getProductsByCategory(category || "");
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [category]);
 
   const categoryInfo: Record<
     string,

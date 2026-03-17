@@ -1,13 +1,17 @@
 import { motion } from "motion/react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CreditCard } from "lucide-react";
 
 export default function Checkout() {
   const { cart, getCartTotal, discount, clearCart } = useCart();
   const navigate = useNavigate();
   const [orderPlaced, setOrderPlaced] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   const [formData, setFormData] = useState({
     name: "",

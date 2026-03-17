@@ -15,7 +15,6 @@ import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const [smokeRevealed, setSmokeRevealed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const { scrollYProgress } = useScroll();
@@ -59,22 +58,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Ensure we always start at the top when this page mounts
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-
-    // Start the smoke reveal animation after a short delay
-    const timer = setTimeout(() => {
-      setSmokeRevealed(true);
-    }, 2000); // 2 second delay before starting reveal
-
-    return () => clearTimeout(timer);
+    // Scroll to top when page mounts
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
   const featuredProducts = products.slice(0, 8);
   const headwear = getProductsByCategory("headwear");
   const smoking = getProductsByCategory("smoking");
   const socks = getProductsByCategory("socks");
-  const smokeParticleCount = isMobile ? 30 : 150;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -102,6 +93,19 @@ export default function Home() {
             }}
           />
         </div>
+
+        {/* Video Background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-10"
+          style={{ filter: 'brightness(0.4) contrast(0.8)' }}
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
 
         {/* Scroll-driven smoke from edges */}
         <motion.div
@@ -149,43 +153,6 @@ export default function Home() {
           }}
         />
 
-        {/* Dense White Smoke Overlay */}
-        <motion.div
-          className="absolute inset-0 z-20"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: smokeRevealed ? 0 : 1 }}
-          transition={{ duration: 8, ease: "easeOut" }}
-          style={{
-            background: `radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 20%, rgba(255,255,255,0.8) 40%, rgba(255,255,255,0.7) 60%, rgba(255,255,255,0.6) 80%, rgba(255,255,255,0.4) 100%)`,
-          }}
-        />
-
-        {/* Additional Smoke Particles for Depth (reduced on mobile) */}
-        {[...Array(smokeParticleCount)].map((_, i) => (
-          <motion.div
-            key={`smoke-${i}`}
-            className="absolute blur-3xl"
-            style={{
-              width: `${30 + Math.random() * 50}px`,
-              height: `${30 + Math.random() * 50}px`,
-              background: `radial-gradient(circle, rgba(255,255,255,${0.8 + Math.random() * 0.2}) 0%, rgba(255,255,255,${0.6 + Math.random() * 0.2}) 50%, transparent 100%)`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            initial={{ opacity: 0.9, scale: 1 }}
-            animate={{
-              opacity: smokeRevealed ? 0 : 0.9,
-              scale: smokeRevealed ? 0.5 : 1,
-              y: smokeRevealed ? -50 : 0,
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4,
-              delay: Math.random() * 2,
-              ease: "easeOut",
-            }}
-          />
-        ))}
-
         {/* Hero Content */}
         <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 text-center">
           <motion.div
@@ -195,26 +162,43 @@ export default function Home() {
           >
             {/* Brand Name - Always Visible */}
             <motion.h1
-              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold mb-6 relative z-40"
+              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl mb-6 relative z-40"
               style={{
+                fontFamily: "'IM Fell English', serif",
+                fontWeight: 400,
+                letterSpacing: "0.04em",
                 background:
-                  "linear-gradient(135deg, #ffffff 0%, #9e9e9e 50%, #1a1a1a 100%)",
+                  "linear-gradient(135deg, #ffffff 0%, #f7f7f7 50%, #ffffff 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
-                textShadow: "0 0 50px rgba(255,255,255,0.8)",
+                WebkitTextStroke: "1px rgba(255,255,255,0.35)",
               }}
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 1 }}
+              animate={{
+                opacity: [0.9, 1, 0.9],
+                scale: [1, 1.02, 1],
+                textShadow: [
+                  "0 0 12px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35)",
+                  "0 0 18px rgba(255,255,255,0.8), 0 0 32px rgba(255,255,255,0.45)",
+                  "0 0 12px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35)"
+                ]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                repeatType: "mirror",
+                ease: "easeInOut"
+              }}
+              initial={{ opacity: 0.9, scale: 1 }}
             >
               DRIPTOWN
             </motion.h1>
 
-            {/* Rest of content - Revealed after smoke */}
+            {/* Rest of content - Always visible */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: smokeRevealed ? 1 : 0 }}
-              transition={{ duration: 3, delay: 2 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
             >
               <motion.p
                 initial={{ opacity: 0 }}
@@ -321,8 +305,8 @@ export default function Home() {
         id="products"
         className="py-24 px-4 sm:px-6 lg:px-8"
         initial={{ opacity: 0 }}
-        animate={{ opacity: smokeRevealed ? 1 : 0 }}
-        transition={{ duration: 3, delay: 4 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1 }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -351,8 +335,8 @@ export default function Home() {
       <motion.section
         className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-soft)]"
         initial={{ opacity: 0 }}
-        animate={{ opacity: smokeRevealed ? 1 : 0 }}
-        transition={{ duration: 3, delay: 5 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.5 }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -381,8 +365,8 @@ export default function Home() {
       <motion.section
         className="py-24 px-4 sm:px-6 lg:px-8"
         initial={{ opacity: 0 }}
-        animate={{ opacity: smokeRevealed ? 1 : 0 }}
-        transition={{ duration: 3, delay: 6 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.5 }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -411,8 +395,8 @@ export default function Home() {
       <motion.section
         className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-soft)]"
         initial={{ opacity: 0 }}
-        animate={{ opacity: smokeRevealed ? 1 : 0 }}
-        transition={{ duration: 3, delay: 7 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 2 }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div

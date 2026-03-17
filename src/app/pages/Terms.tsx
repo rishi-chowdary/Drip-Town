@@ -1,6 +1,10 @@
 import { motion } from "motion/react";
+import { useEffect } from "react";
 
 export default function Terms() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
   return (
     <div className="min-h-screen bg-black pt-32 pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

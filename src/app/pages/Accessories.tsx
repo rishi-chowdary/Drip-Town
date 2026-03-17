@@ -1,9 +1,14 @@
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
+import { useEffect } from "react";
 import { getProductsByCategory } from "../data/products";
 
 export default function Accessories() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   const categories = [
     {

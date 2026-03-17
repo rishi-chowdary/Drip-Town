@@ -1,9 +1,13 @@
 import { motion } from "motion/react";
 import { Instagram, Youtube, Twitter, Facebook, ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Link } from "react-router";
 
 export default function About() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
   const socialLinks = [
     {
       name: "Instagram",
