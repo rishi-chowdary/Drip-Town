@@ -1,8 +1,65 @@
 @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
 
+@font-face {
+  font-family: 'CS Roger Dropline';
+  src: url('/fonts/cs-roger.dropline.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CS Roger Inner';
+  src: url('/fonts/cs-roger.inner.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* Chrome Hearts style font - Blackletter/Gothic */
 .chrome-hearts {
   font-family: 'IM Fell English', serif;
   font-weight: 400;
   letter-spacing: 0.04em;
+}
+
+/* CS Roger Dropline font */
+.roger-dropline {
+  font-family: 'CS Roger Dropline', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* CS Roger Inner font */
+.roger-inner {
+  font-family: 'CS Roger Inner', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* Animated gradient for title */
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.title-gradient {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #e0e0e0 25%,
+    #ffffff 50%,
+    #e0e0e0 75%,
+    #ffffff 100%
+  );
+  background-size: 200% 100%;
+  animation: gradientFlow 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

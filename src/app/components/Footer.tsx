@@ -49,7 +49,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <h3 className="text-2xl tracking-wider mb-4">
+            <h3 className="text-2xl tracking-wider mb-4 roger-dropline font-bold">
               DRIPTOWN
             </h3>
             <p className="text-white/60 mb-6 max-w-xs">

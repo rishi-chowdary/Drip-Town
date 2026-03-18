@@ -13,10 +13,17 @@ export default function Navigation() {
   const { getCartCount } = useCart();
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -43,7 +50,7 @@ export default function Navigation() {
             <Link to="/" className="flex items-center group">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="text-2xl tracking-wider"
+                className="text-2xl tracking-wider roger-dropline font-bold"
               >
                 DRIPTOWN
               </motion.div>

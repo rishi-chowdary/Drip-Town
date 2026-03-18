@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { ShoppingCart } from "lucide-react";
@@ -9,20 +10,20 @@ interface ProductCardProps {
   index?: number;
 }
 
-export default function ProductCard({ product, index = 0 }: ProductCardProps) {
+function ProductCard({ product, index = 0 }: ProductCardProps) {
   const navigate = useNavigate();
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      whileHover={{ y: -8 }}
+      viewport={{ once: true, margin: "0px 0px -100px 0px" }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
+      whileHover={{ y: -4 }}
       onClick={() => navigate(`/product/${product.id}`)}
       className="group cursor-pointer"
     >
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-card)] backdrop-blur-sm border border-[var(--border-main)] transition-all duration-300 group-hover:border-[var(--border-soft)] group-hover:shadow-2xl group-hover:shadow-white/20">
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-card)] backdrop-blur-sm border border-[var(--border-main)] transition-all duration-300 group-hover:border-[var(--border-soft)] group-hover:shadow-2xl group-hover:shadow-white/20" style={{ willChange: 'transform' }}>
         {/* Image Container */}
         <div className="aspect-square overflow-hidden relative">
           <ImageWithFallback
@@ -35,9 +36,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           
           {/* Quick Add Button */}
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={(e) => {
               e.stopPropagation();
               // Add to cart logic
@@ -100,3 +101,5 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     </motion.div>
   );
 }
+
+export default memo(ProductCard);

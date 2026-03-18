@@ -86,20 +86,11 @@ export default function CategoryPage() {
         <div
           className={`absolute inset-0 bg-gradient-to-b ${info.gradient} to-black`}
         />
-        <motion.div
-          animate={{
-            backgroundPosition: ["0% 0%", "100% 100%"],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
+        <div
           className="absolute inset-0 opacity-30"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 50%, rgba(200, 200, 200, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(120, 120, 120, 0.15) 0%, transparent 50%)",
-            backgroundSize: "200% 200%",
+              "radial-gradient(circle at 20% 50%, rgba(200, 200, 200, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(120, 120, 120, 0.08) 0%, transparent 50%)",
           }}
         />
 

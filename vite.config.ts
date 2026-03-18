@@ -16,7 +16,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'motion': ['motion/react'],
+          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-tabs'],
+        },
+      },
+    },
+    performanceHint: 'warning',
+    chunkSizeWarningLimit: 1000,
+  },
+  
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })

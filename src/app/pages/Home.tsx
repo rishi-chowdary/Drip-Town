@@ -30,23 +30,30 @@ export default function Home() {
   const scrollSmokeXReverse = useTransform(scrollYProgress, [0, 0.5], [380, 0]);
   const scrollSmokeOpacity = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.5], [0, 0.85, 0.7, 0.25]);
 
-  const scrollVelocityOffset = useTransform(scrollVelocitySpring, [-1, 0, 1], [-40, 0, 40]);
+  const scrollVelocityOffset = useTransform(scrollVelocitySpring, [-1, 0, 1], [-20, 0, 20]);
   const topSmokeY = useTransform([scrollSmokeY, scrollVelocityOffset], ([y, v]) => y + v);
   const bottomSmokeY = useTransform([scrollSmokeYReverse, scrollVelocityOffset], ([y, v]) => y - v);
   const leftSmokeX = useTransform([scrollSmokeX, scrollVelocityOffset], ([x, v]) => x + v);
   const rightSmokeX = useTransform([scrollSmokeXReverse, scrollVelocityOffset], ([x, v]) => x - v);
 
   useEffect(() => {
+    let rafId: number;
     const handleMouseMove = (e: MouseEvent) => {
       if (!heroRef.current || isMobile) return;
-      const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth - 0.5) * 20;
-      const y = (clientY / window.innerHeight - 0.5) * 20;
-      heroRef.current.style.transform = `translate(${x}px, ${y}px)`;
+      
+      rafId = requestAnimationFrame(() => {
+        const { clientX, clientY } = e;
+        const x = (clientX / window.innerWidth - 0.5) * 15;
+        const y = (clientY / window.innerHeight - 0.5) * 15;
+        heroRef.current!.style.transform = `translate(${x}px, ${y}px)`;
+      });
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
   }, [isMobile]);
 
   useEffect(() => {
@@ -72,27 +79,9 @@ export default function Home() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-x-hidden">
         {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-black" />
-          <motion.div
-            animate={{
-              backgroundPosition: ["0% 0%", "100% 100%"],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage:
-              "radial-gradient(circle at 20% 50%, rgba(200,200,200,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(120,120,120,0.15) 0%, transparent 50%)",
-              backgroundSize: "200% 200%",
-            }}
-          />
-        </div>
+        <div className="absolute inset-0 bg-black" />
 
         {/* Video Background */}
         <video
@@ -162,25 +151,14 @@ export default function Home() {
           >
             {/* Brand Name - Always Visible */}
             <motion.h1
-              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl mb-6 relative z-40"
-              style={{
-                fontFamily: "'IM Fell English', serif",
-                fontWeight: 400,
-                letterSpacing: "0.04em",
-                background:
-                  "linear-gradient(135deg, #ffffff 0%, #f7f7f7 50%, #ffffff 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                WebkitTextStroke: "1px rgba(255,255,255,0.35)",
-              }}
+              className="text-[clamp(3rem,12vw,10rem)] mb-6 relative z-40 roger-dropline font-bold title-gradient whitespace-nowrap"
               animate={{
-                opacity: [0.9, 1, 0.9],
+                opacity: [0.95, 1, 0.95],
                 scale: [1, 1.02, 1],
                 textShadow: [
-                  "0 0 12px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35)",
-                  "0 0 18px rgba(255,255,255,0.8), 0 0 32px rgba(255,255,255,0.45)",
-                  "0 0 12px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35)"
+                  "0 10px 30px rgba(255, 255, 255, 0.5), 0 0 50px rgba(200, 200, 200, 0.4)",
+                  "0 15px 40px rgba(255, 255, 255, 0.6), 0 0 60px rgba(200, 200, 200, 0.5)",
+                  "0 10px 30px rgba(255, 255, 255, 0.5), 0 0 50px rgba(200, 200, 200, 0.4)"
                 ]
               }}
               transition={{
@@ -189,7 +167,7 @@ export default function Home() {
                 repeatType: "mirror",
                 ease: "easeInOut"
               }}
-              initial={{ opacity: 0.9, scale: 1 }}
+              initial={{ opacity: 0.95, scale: 1 }}
             >
               DRIPTOWN
             </motion.h1>
