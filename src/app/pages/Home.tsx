@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useVelocity,
-  useSpring,
-} from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
@@ -17,24 +11,6 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  const { scrollYProgress } = useScroll();
-  const scrollVelocity = useVelocity(scrollYProgress);
-  const scrollVelocitySpring = useSpring(scrollVelocity, {
-    damping: 20,
-    stiffness: 130,
-  });
-
-  const scrollSmokeY = useTransform(scrollYProgress, [0, 0.5], [-420, 0]);
-  const scrollSmokeYReverse = useTransform(scrollYProgress, [0, 0.5], [420, 0]);
-  const scrollSmokeX = useTransform(scrollYProgress, [0, 0.5], [-380, 0]);
-  const scrollSmokeXReverse = useTransform(scrollYProgress, [0, 0.5], [380, 0]);
-  const scrollSmokeOpacity = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.5], [0, 0.85, 0.7, 0.25]);
-
-  const scrollVelocityOffset = useTransform(scrollVelocitySpring, [-1, 0, 1], [-20, 0, 20]);
-  const topSmokeY = useTransform([scrollSmokeY, scrollVelocityOffset], ([y, v]) => y + v);
-  const bottomSmokeY = useTransform([scrollSmokeYReverse, scrollVelocityOffset], ([y, v]) => y - v);
-  const leftSmokeX = useTransform([scrollSmokeX, scrollVelocityOffset], ([x, v]) => x + v);
-  const rightSmokeX = useTransform([scrollSmokeXReverse, scrollVelocityOffset], ([x, v]) => x - v);
 
   useEffect(() => {
     let rafId: number;
@@ -83,62 +59,29 @@ export default function Home() {
         {/* Animated Background */}
         <div className="absolute inset-0 bg-black" />
 
-        {/* Video Background */}
+        {/* Video Background (hidden on mobile for performance) */}
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover z-10"
+          className="hidden sm:block absolute inset-0 w-full h-full object-cover z-10"
           style={{ filter: 'brightness(0.4) contrast(0.8)' }}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
-        {/* Scroll-driven smoke from edges */}
-        <motion.div
-          className="absolute left-0 right-0 top-0 h-56 pointer-events-none"
+        {/* Static background fallback for mobile */}
+        <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-black via-zinc-900 to-gray-950 z-10" />
+
+        {/* Subtle background glow (static for better performance) */}
+        <div
+          className="absolute inset-0 pointer-events-none"
           style={{
-            zIndex: 25,
-            y: topSmokeY,
-            opacity: scrollSmokeOpacity,
             background:
-              "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%)",
-            filter: "blur(90px)",
-          }}
-        />
-        <motion.div
-          className="absolute left-0 right-0 bottom-0 h-56 pointer-events-none"
-          style={{
-            zIndex: 25,
-            y: bottomSmokeY,
-            opacity: scrollSmokeOpacity,
-            background:
-              "radial-gradient(circle at 50% 100%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%)",
-            filter: "blur(90px)",
-          }}
-        />
-        <motion.div
-          className="absolute top-0 bottom-0 left-0 w-56 pointer-events-none"
-          style={{
-            zIndex: 25,
-            x: leftSmokeX,
-            opacity: scrollSmokeOpacity,
-            background:
-              "radial-gradient(circle at 0% 50%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)",
-            filter: "blur(90px)",
-          }}
-        />
-        <motion.div
-          className="absolute top-0 bottom-0 right-0 w-56 pointer-events-none"
-          style={{
-            zIndex: 25,
-            x: rightSmokeX,
-            opacity: scrollSmokeOpacity,
-            background:
-              "radial-gradient(circle at 100% 50%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)",
-            filter: "blur(90px)",
+              "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.25) 0%, rgba(0,0,0,0) 60%), radial-gradient(circle at 50% 100%, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0) 65%)",
+            filter: "blur(70px)",
           }}
         />
 
@@ -149,28 +92,10 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Brand Name - Always Visible */}
-            <motion.h1
-              className="text-[clamp(3rem,12vw,10rem)] mb-6 relative z-40 roger-dropline font-bold title-gradient whitespace-nowrap"
-              animate={{
-                opacity: [0.95, 1, 0.95],
-                scale: [1, 1.02, 1],
-                textShadow: [
-                  "0 10px 30px rgba(255, 255, 255, 0.5), 0 0 50px rgba(200, 200, 200, 0.4)",
-                  "0 15px 40px rgba(255, 255, 255, 0.6), 0 0 60px rgba(200, 200, 200, 0.5)",
-                  "0 10px 30px rgba(255, 255, 255, 0.5), 0 0 50px rgba(200, 200, 200, 0.4)"
-                ]
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "mirror",
-                ease: "easeInOut"
-              }}
-              initial={{ opacity: 0.95, scale: 1 }}
-            >
+            {/* Brand Name */}
+            <h1 className="text-[clamp(3rem,12vw,10rem)] mb-6 relative z-40 roger-dropline font-bold title-gradient whitespace-nowrap glow-text">
               DRIPTOWN
-            </motion.h1>
+            </h1>
 
             {/* Rest of content - Always visible */}
             <motion.div
@@ -191,6 +116,7 @@ export default function Home() {
               <div
                 ref={heroRef}
                 className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto mb-12 transition-transform duration-200 ease-out"
+                style={{ willChange: "transform" }}
               >
                 {[
                   products.find((p) => p.category === "headwear"),

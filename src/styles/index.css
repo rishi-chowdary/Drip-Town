@@ -50,6 +50,21 @@ body {
   will-change: transform, opacity;
 }
 
+/* Glow animation for titles */
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.3);
+  }
+
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.4);
+  }
+}
+
+.glow-text {
+  animation: glow 2.5s ease-in-out infinite;
+}
+
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -59,5 +74,12 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Disable expensive backdrop filters */
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-xl {
+    backdrop-filter: none !important;
   }
 }

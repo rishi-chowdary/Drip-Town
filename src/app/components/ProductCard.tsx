@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { ShoppingCart } from "lucide-react";
 import { Product } from "../data/products";
@@ -10,43 +9,35 @@ interface ProductCardProps {
   index?: number;
 }
 
-function ProductCard({ product, index = 0 }: ProductCardProps) {
+function ProductCard({ product }: ProductCardProps) {
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-      transition={{ delay: index * 0.05, duration: 0.4 }}
-      whileHover={{ y: -4 }}
+    <div
       onClick={() => navigate(`/product/${product.id}`)}
-      className="group cursor-pointer"
+      className="group cursor-pointer transform transition [will-change:transform] hover:-translate-y-1"
     >
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-card)] backdrop-blur-sm border border-[var(--border-main)] transition-all duration-300 group-hover:border-[var(--border-soft)] group-hover:shadow-2xl group-hover:shadow-white/20" style={{ willChange: 'transform' }}>
+      <div className="relative overflow-hidden rounded-2xl bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.08)] transition-all duration-300 group-hover:border-[rgba(255,255,255,0.15)] group-hover:shadow-lg">
         {/* Image Container */}
         <div className="aspect-square overflow-hidden relative">
           <ImageWithFallback
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           {/* Glow Effect */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
-          
+
           {/* Quick Add Button */}
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={(e) => {
               e.stopPropagation();
               // Add to cart logic
             }}
-            className="absolute bottom-4 right-4 w-12 h-12 bg-gradient-to-r from-white to-white/80 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg"
+            className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg"
           >
             <ShoppingCart className="w-5 h-5" />
-          </motion.button>
+          </button>
         </div>
 
         {/* Product Info */}
@@ -79,8 +70,6 @@ function ProductCard({ product, index = 0 }: ProductCardProps) {
                           ? "#1e3a8a"
                           : color === "Purple"
                           ? "#a855f7"
-                          : color === "Grey"
-                          ? "#9e9e9e"
                           : color === "Chrome" || color === "Silver"
                           ? "linear-gradient(135deg, #ffffff, #9e9e9e, #1a1a1a)"
                           : color === "Gold"
@@ -98,7 +87,7 @@ function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
