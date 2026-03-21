@@ -1,17 +1,14 @@
 import { motion } from "motion/react";
 import { useCart } from "../context/CartContext";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { CreditCard } from "lucide-react";
+import { CreditCard, ArrowLeft } from "lucide-react";
+import { syncOrderToSheets, type OrderData } from "../utils/sheetsAPI";
 
 export default function Checkout() {
   const { cart, getCartTotal, discount, clearCart } = useCart();
   const navigate = useNavigate();
   const [orderPlaced, setOrderPlaced] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,8 +22,85 @@ export default function Checkout() {
     couponCode: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    // Check if user is logged in and pre-fill form
+    const user = localStorage.getItem("driptownUser");
+    if (!user) {
+      navigate("/cart");
+    } else {
+      const userData = JSON.parse(user);
+      setFormData((prev) => ({
+        ...prev,
+        name: userData.name || "",
+        email: userData.email || "",
+        address: userData.address || "",
+        city: userData.city || "",
+        state: userData.state || "",
+        zipCode: userData.zipCode || "",
+        country: userData.country || "",
+      }));
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Generate unique order ID
+    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
+    // Calculate totals
+    const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    const discountAmount = (subtotal * discount) / 100;
+    const total = getCartTotal();
+
+    // Save updated address for future orders
+    const user = localStorage.getItem("driptownUser");
+    if (user) {
+      const userData = JSON.parse(user);
+      localStorage.setItem(
+        "driptownUser",
+        JSON.stringify({
+          ...userData,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country,
+        })
+      );
+    }
+
+    // Create order object
+    const order: OrderData = {
+      id: orderId,
+      date: new Date().toISOString(),
+      customerName: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode,
+      country: formData.country,
+      items: cart.map((item) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        color: item.selectedColor,
+        size: item.selectedSize,
+      })),
+      subtotal,
+      discount,
+      discountAmount,
+      total,
+      status: "pending",
+    };
+
+    // Sync order to Google Sheets
+    await syncOrderToSheets(order);
+
     setOrderPlaced(true);
     setTimeout(() => {
       clearCart();
@@ -58,7 +132,7 @@ export default function Checkout() {
             className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6"
           >
             <svg
-              className="w-12 h-12 text-white"
+              className="w-12 h-12 text-black"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -71,7 +145,7 @@ export default function Checkout() {
               />
             </svg>
           </motion.div>
-          <h1 className="text-4xl mb-4">Order Placed!</h1>
+          <h1 className="text-4xl mb-4 text-white">Order Placed!</h1>
           <p className="text-white/60 mb-6">
             Thank you for your order. We'll send you a confirmation email shortly.
           </p>
@@ -86,13 +160,27 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-black pt-32 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-8"
+        >
+          <Link
+            to="/cart"
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Cart
+          </Link>
+        </motion.div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <h1 className="text-5xl mb-2">Checkout</h1>
+          <h1 className="text-5xl mb-2 text-white font-bold">Checkout</h1>
           <p className="text-white/60">Complete your purchase</p>
         </motion.div>
 
@@ -105,12 +193,12 @@ export default function Checkout() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg p-6 hover:border-[var(--border-soft)] transition"
+                className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-white/20 transition"
               >
-                <h2 className="text-2xl mb-6">Customer Information</h2>
+                <h2 className="text-2xl mb-6 text-white">Customer Information</h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm mb-2 text-white/80">
+                    <label className="block text-sm mb-2 text-white">
                       Full Name *
                     </label>
                     <input
@@ -118,12 +206,11 @@ export default function Checkout() {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                      placeholder="John Doe"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm mb-2 text-white/80">
+                    <label className="block text-sm mb-2 text-white">
                       Email *
                     </label>
                     <input
@@ -131,12 +218,11 @@ export default function Checkout() {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                      placeholder="john@example.com"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm mb-2 text-white/80">
+                    <label className="block text-sm mb-2 text-white">
                       Phone Number *
                     </label>
                     <input
@@ -144,8 +230,7 @@ export default function Checkout() {
                       required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                      placeholder="+1 (555) 123-4567"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                     />
                   </div>
                 </div>
@@ -156,12 +241,12 @@ export default function Checkout() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg p-6 hover:border-[var(--border-soft)] transition"
+                className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-white/20 transition"
               >
-                <h2 className="text-2xl mb-6">Shipping Address</h2>
+                <h2 className="text-2xl mb-6 text-white">Shipping Address</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm mb-2 text-white/80">
+                    <label className="block text-sm mb-2 text-white">
                       Street Address *
                     </label>
                     <input
@@ -169,13 +254,12 @@ export default function Checkout() {
                       required
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                      placeholder="123 Main Street"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                     />
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm mb-2 text-white/80">
+                      <label className="block text-sm mb-2 text-white">
                         City *
                       </label>
                       <input
@@ -183,12 +267,11 @@ export default function Checkout() {
                         required
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                        placeholder="New York"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm mb-2 text-white/80">
+                      <label className="block text-sm mb-2 text-white">
                         State *
                       </label>
                       <input
@@ -196,14 +279,13 @@ export default function Checkout() {
                         required
                         value={formData.state}
                         onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                        placeholder="NY"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm mb-2 text-white/80">
+                      <label className="block text-sm mb-2 text-white">
                         ZIP Code *
                       </label>
                       <input
@@ -211,12 +293,11 @@ export default function Checkout() {
                         required
                         value={formData.zipCode}
                         onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
-                        placeholder="10001"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm mb-2 text-white/80">
+                      <label className="block text-sm mb-2 text-white">
                         Country *
                       </label>
                       <input
@@ -224,7 +305,7 @@ export default function Checkout() {
                         required
                         value={formData.country}
                         onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-white/30 transition-colors"
                         placeholder="United States"
                       />
                     </div>
@@ -239,7 +320,7 @@ export default function Checkout() {
                 transition={{ delay: 0.3 }}
                 className="bg-white/5 border border-white/10 rounded-lg p-6"
               >
-                <h2 className="text-2xl mb-6">Payment Method</h2>
+                <h2 className="text-2xl mb-6 text-white">Payment Method</h2>
                 <div className="text-center py-12 border-2 border-dashed border-white/20 rounded-lg">
                   <CreditCard className="w-16 h-16 mx-auto mb-4 text-white/40" />
                   <h3 className="text-xl mb-2 text-white/80">Payment Gateway Integration</h3>
@@ -257,43 +338,43 @@ export default function Checkout() {
               transition={{ delay: 0.2 }}
               className="lg:col-span-1"
             >
-              <div className="bg-white/5 border border-white/10 rounded-lg p-6 sticky top-32">
-                <h2 className="text-2xl mb-6">Order Summary</h2>
+              <div className="bg-white/10 border border-white/10 rounded-lg p-6 sticky top-32">
+                <h2 className="text-2xl mb-6 text-white">Order Summary</h2>
 
                 {/* Cart Items */}
                 <div className="space-y-4 mb-6 pb-6 border-b border-white/10">
                   {cart.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <div className="flex-1">
-                        <div className="text-white/90">{item.name}</div>
-                        <div className="text-white/50">Qty: {item.quantity}</div>
+                        <div className="text-white">{item.name}</div>
+                        <div className="text-white/60">Qty: {item.quantity}</div>
                       </div>
-                      <div className="text-white/90">${item.price * item.quantity}</div>
+                      <div className="text-white">₹{item.price * item.quantity}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* Price Breakdown */}
                 <div className="space-y-3 mb-6 pb-6 border-b border-white/10">
-                  <div className="flex justify-between text-white/60">
+                  <div className="flex justify-between text-white/70">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   {discount > 0 && (
-                    <div className="flex justify-between text-white/80">
+                    <div className="flex justify-between text-white">
                       <span>Discount ({discount}%)</span>
-                      <span>-${discountAmount.toFixed(2)}</span>
+                      <span>-₹{discountAmount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-white/60">
+                  <div className="flex justify-between text-white/70">
                     <span>Shipping</span>
                     <span>FREE</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between text-2xl mb-6">
+                <div className="flex justify-between text-2xl mb-6 text-white">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
 
                 <motion.button

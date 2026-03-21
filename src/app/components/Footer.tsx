@@ -22,7 +22,7 @@ export default function Footer() {
   ];
 
   const shopLinks = [
-    { name: "Headwear", path: "/category/headwear" },
+    { name: "Headgear", path: "/category/headgear" },
     { name: "Smoking", path: "/category/smoking" },
     { name: "Accessories", path: "/accessories" },
     { name: "Socks", path: "/category/socks" },

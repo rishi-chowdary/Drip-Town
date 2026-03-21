@@ -1,16 +1,26 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import { ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
+import { ShoppingCart, Menu, X, ChevronDown, User, LogOut, Heart, Package, Gift, HelpCircle, MapPin, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
-  const [accessoriesOpen, setAccessoriesOpen] = useState(false);
   const navigate = useNavigate();
   const { getCartCount } = useCart();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     let ticking = false;
@@ -31,6 +41,15 @@ export default function Navigation() {
     navigate(path);
     setMobileMenuOpen(false);
     setShopDropdownOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -89,53 +108,41 @@ export default function Navigation() {
                     >
                       <div className="p-2">
                         <button
-                          onClick={() => handleNavClick("/category/headwear")}
+                          onClick={() => handleNavClick("/category/headgear")}
                           className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
                         >
-                          Headwear
+                          Headgear
                         </button>
                         <button
-                          onClick={() => handleNavClick("/category/smoking")}
+                          onClick={() => handleNavClick("/category/smokn")}
                           className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
                         >
-                          Smoking
+                          Smokn
                         </button>
-                        
-                        {/* Accessories with Sub-menu */}
-                        <div>
-                          <button
-                            onClick={() => handleNavClick("/accessories")}
-                            className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
-                          >
-                            Accessories
-                          </button>
-                          <div className="pl-4 mt-1 space-y-1">
-                            <button
-                              onClick={() => handleNavClick("/category/socks")}
-                              className="w-full text-left px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded transition-colors"
-                            >
-                              Socks
-                            </button>
-                            <button
-                              onClick={() => handleNavClick("/category/stockings")}
-                              className="w-full text-left px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded transition-colors"
-                            >
-                              Stockings
-                            </button>
-                            <button
-                              onClick={() => handleNavClick("/category/riding")}
-                              className="w-full text-left px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded transition-colors"
-                            >
-                              Riding Gear
-                            </button>
-                            <button
-                              onClick={() => handleNavClick("/category/mufflers")}
-                              className="w-full text-left px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded transition-colors"
-                            >
-                              Mufflers
-                            </button>
-                          </div>
-                        </div>
+                        <button
+                          onClick={() => handleNavClick("/category/riding")}
+                          className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
+                        >
+                          Riding Gear
+                        </button>
+                        <button
+                          onClick={() => handleNavClick("/category/belts")}
+                          className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
+                        >
+                          Belts
+                        </button>
+                        <button
+                          onClick={() => handleNavClick("/category/socks")}
+                          className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
+                        >
+                          Socks
+                        </button>
+                        <button
+                          onClick={() => handleNavClick("/category/accessories")}
+                          className="w-full text-left px-4 py-3 text-white/80 hover:text-white hover:bg-white/5 rounded transition-colors"
+                        >
+                          Accessories
+                        </button>
                       </div>
                     </motion.div>
                   )}
@@ -159,8 +166,94 @@ export default function Navigation() {
               </Link>
             </div>
 
-            {/* Cart & Mobile Menu */}
+            {/* Cart, Profile & Mobile Menu */}
             <div className="flex items-center gap-4">
+              {/* Profile/Login */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative p-2 text-white/80 hover:text-white transition-colors"
+                    >
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={user.photoURL || ""} alt={user.displayName || "User"} />
+                        <AvatarFallback className="bg-white/10 text-white text-sm">
+                          {user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </motion.button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-black/95 backdrop-blur-xl border-white/10">
+                    <DropdownMenuLabel className="text-white/80">
+                      {user.displayName || user.email}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-white/10" />
+                    <DropdownMenuItem
+                      onClick={() => navigate("/profile/orders")}
+                      className="text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
+                    >
+                      <Package className="mr-2 h-4 w-4" />
+                      Track Orders
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/profile/wishlist")}
+                      className="text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
+                    >
+                      <Heart className="mr-2 h-4 w-4" />
+                      Wishlist
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/profile/coupons")}
+                      className="text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
+                    >
+                      <Gift className="mr-2 h-4 w-4" />
+                      Coupons
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/help")}
+                      className="text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
+                    >
+                      <HelpCircle className="mr-2 h-4 w-4" />
+                      Help Centre
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/profile/addresses")}
+                      className="text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
+                    >
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Saved Addresses
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/profile/cards")}
+                      className="text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
+                    >
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Saved Cards
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-white/10" />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate("/auth")}
+                  className="px-4 py-2 text-white/80 hover:text-white border border-white/20 hover:border-white/40 rounded-lg transition-colors"
+                >
+                  Login
+                </motion.button>
+              )}
+
+              {/* Cart */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -213,16 +306,17 @@ export default function Navigation() {
                 Home
               </button>
 
+              {/* Shop Menu for mobile */}
               <div>
                 <button
-                  onClick={() => setAccessoriesOpen(!accessoriesOpen)}
+                  onClick={() => setShopDropdownOpen(!shopDropdownOpen)}
                   className="w-full text-left text-xl text-white/80 hover:text-white transition-colors py-3 flex items-center justify-between"
                 >
                   Shop
-                  <ChevronDown className={`w-5 h-5 transition-transform ${accessoriesOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-5 h-5 transition-transform ${shopDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
                 <AnimatePresence>
-                  {accessoriesOpen && (
+                  {shopDropdownOpen && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
@@ -230,49 +324,41 @@ export default function Navigation() {
                       className="pl-4 space-y-2 overflow-hidden"
                     >
                       <button
-                        onClick={() => handleNavClick("/category/headwear")}
+                        onClick={() => handleNavClick("/category/headgear")}
                         className="w-full text-left text-white/60 hover:text-white transition-colors py-2"
                       >
-                        Headwear
+                        Headgear
                       </button>
                       <button
-                        onClick={() => handleNavClick("/category/smoking")}
+                        onClick={() => handleNavClick("/category/smokn")}
                         className="w-full text-left text-white/60 hover:text-white transition-colors py-2"
                       >
-                        Smoking
+                        Smokn
                       </button>
                       <button
-                        onClick={() => handleNavClick("/accessories")}
+                        onClick={() => handleNavClick("/category/riding")}
+                        className="w-full text-left text-white/60 hover:text-white transition-colors py-2"
+                      >
+                        Riding Gear
+                      </button>
+                      <button
+                        onClick={() => handleNavClick("/category/belts")}
+                        className="w-full text-left text-white/60 hover:text-white transition-colors py-2"
+                      >
+                        Belts
+                      </button>
+                      <button
+                        onClick={() => handleNavClick("/category/socks")}
+                        className="w-full text-left text-white/60 hover:text-white transition-colors py-2"
+                      >
+                        Socks
+                      </button>
+                      <button
+                        onClick={() => handleNavClick("/category/accessories")}
                         className="w-full text-left text-white/60 hover:text-white transition-colors py-2"
                       >
                         Accessories
                       </button>
-                      <div className="pl-4 space-y-2">
-                        <button
-                          onClick={() => handleNavClick("/category/socks")}
-                          className="w-full text-left text-sm text-white/50 hover:text-white transition-colors py-2"
-                        >
-                          Socks
-                        </button>
-                        <button
-                          onClick={() => handleNavClick("/category/stockings")}
-                          className="w-full text-left text-sm text-white/50 hover:text-white transition-colors py-2"
-                        >
-                          Stockings
-                        </button>
-                        <button
-                          onClick={() => handleNavClick("/category/riding")}
-                          className="w-full text-left text-sm text-white/50 hover:text-white transition-colors py-2"
-                        >
-                          Riding Gear
-                        </button>
-                        <button
-                          onClick={() => handleNavClick("/category/mufflers")}
-                          className="w-full text-left text-sm text-white/50 hover:text-white transition-colors py-2"
-                        >
-                          Mufflers
-                        </button>
-                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -291,6 +377,73 @@ export default function Navigation() {
               >
                 Contact
               </button>
+
+              {/* Profile Options for Mobile */}
+              {user && (
+                <>
+                  <div className="border-t border-white/10 pt-4 mt-4">
+                    <div className="text-white/60 text-sm mb-2">Account</div>
+                    <button
+                      onClick={() => handleNavClick("/profile/orders")}
+                      className="w-full text-left text-white/80 hover:text-white transition-colors py-2 flex items-center gap-2"
+                    >
+                      <Package className="w-4 h-4" />
+                      Track Orders
+                    </button>
+                    <button
+                      onClick={() => handleNavClick("/profile/wishlist")}
+                      className="w-full text-left text-white/80 hover:text-white transition-colors py-2 flex items-center gap-2"
+                    >
+                      <Heart className="w-4 h-4" />
+                      Wishlist
+                    </button>
+                    <button
+                      onClick={() => handleNavClick("/profile/coupons")}
+                      className="w-full text-left text-white/80 hover:text-white transition-colors py-2 flex items-center gap-2"
+                    >
+                      <Gift className="w-4 h-4" />
+                      Coupons
+                    </button>
+                    <button
+                      onClick={() => handleNavClick("/help")}
+                      className="w-full text-left text-white/80 hover:text-white transition-colors py-2 flex items-center gap-2"
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                      Help Centre
+                    </button>
+                    <button
+                      onClick={() => handleNavClick("/profile/addresses")}
+                      className="w-full text-left text-white/80 hover:text-white transition-colors py-2 flex items-center gap-2"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      Saved Addresses
+                    </button>
+                    <button
+                      onClick={() => handleNavClick("/profile/cards")}
+                      className="w-full text-left text-white/80 hover:text-white transition-colors py-2 flex items-center gap-2"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Saved Cards
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left text-red-400 hover:text-red-300 transition-colors py-2 flex items-center gap-2 mt-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {!user && (
+                <button
+                  onClick={() => handleNavClick("/auth")}
+                  className="w-full text-left text-xl text-white/80 hover:text-white transition-colors py-3 border-t border-white/10 pt-4 mt-4"
+                >
+                  Login
+                </button>
+              )}
             </div>
           </motion.div>
         )}

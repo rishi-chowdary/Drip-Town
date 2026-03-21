@@ -28,14 +28,14 @@ export default function Contact() {
     {
       icon: Mail,
       label: "Email",
-      value: "hello@driptown.com",
-      link: "mailto:hello@driptown.com",
+      value: "DRIPTOWN.IN@GMAIL.COM",
+      link: "mailto:DRIPTOWN.IN@GMAIL.COM",
     },
     {
       icon: Phone,
       label: "Phone",
-      value: "+1 (555) 123-4567",
-      link: "tel:+15551234567",
+      value: "+917701890895",
+      link: "tel:+917701890895",
     },
     {
       icon: MapPin,

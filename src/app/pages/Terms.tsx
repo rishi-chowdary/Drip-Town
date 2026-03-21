@@ -26,7 +26,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl mb-4 text-white">2. Products and Services</h2>
               <p className="mb-3">
-                DripTown offers premium streetwear accessories including headwear, smoking accessories, socks, stockings, riding gear, and mufflers.
+                DripTown offers premium streetwear accessories including headgear, smokn accessories, socks, belts, riding gear, and mufflers.
               </p>
               <p>
                 We reserve the right to modify, discontinue, or limit the availability of any product at any time without prior notice.
@@ -36,7 +36,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl mb-4 text-white">3. Pricing and Payment</h2>
               <p className="mb-3">
-                All prices are displayed in USD and are subject to change without notice. We accept various payment methods through our integrated payment gateway.
+                All prices are displayed in INR and are subject to change without notice. We accept various payment methods through our integrated payment gateway.
               </p>
               <p>
                 Payment must be received in full before products are shipped. We reserve the right to refuse or cancel any order for any reason.

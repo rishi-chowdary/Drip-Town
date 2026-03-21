@@ -32,17 +32,17 @@ export default function ShippingPolicy() {
                 <div className="bg-white/5 border border-white/10 rounded-lg p-4">
                   <h3 className="text-lg text-white mb-2">Standard Shipping</h3>
                   <p className="text-sm mb-1">Delivery: 5-7 business days</p>
-                  <p className="text-sm">Cost: $5.99 (FREE on orders over $75)</p>
+                  <p className="text-sm">Cost: ₹5.99 (FREE on orders over ₹75)</p>
                 </div>
                 <div className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg p-4 hover:border-[var(--border-soft)] transition">
                   <h3 className="text-lg text-white mb-2">Express Shipping</h3>
                   <p className="text-sm mb-1">Delivery: 2-3 business days</p>
-                  <p className="text-sm">Cost: $12.99</p>
+                  <p className="text-sm">Cost: ₹12.99</p>
                 </div>
                 <div className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg p-4 hover:border-[var(--border-soft)] transition">
                   <h3 className="text-lg text-white mb-2">Overnight Shipping</h3>
                   <p className="text-sm mb-1">Delivery: 1 business day</p>
-                  <p className="text-sm">Cost: $24.99</p>
+                  <p className="text-sm">Cost: ₹24.99</p>
                 </div>
               </div>
             </section>
@@ -53,10 +53,10 @@ export default function ShippingPolicy() {
                 We currently ship to select international destinations. Shipping costs and delivery times vary by location:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Canada: 7-14 business days, starting at $15.99</li>
-                <li>UK & Europe: 10-21 business days, starting at $24.99</li>
-                <li>Australia & New Zealand: 14-28 business days, starting at $29.99</li>
-                <li>Asia: 14-28 business days, starting at $29.99</li>
+                <li>Canada: 7-14 business days, starting at ₹15.99</li>
+                <li>UK & Europe: 10-21 business days, starting at ₹24.99</li>
+                <li>Australia & New Zealand: 14-28 business days, starting at ₹29.99</li>
+                <li>Asia: 14-28 business days, starting at ₹29.99</li>
               </ul>
               <p className="mt-3">
                 International customers are responsible for all customs duties, taxes, and fees.

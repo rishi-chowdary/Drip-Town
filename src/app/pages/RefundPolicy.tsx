@@ -43,7 +43,7 @@ export default function RefundPolicy() {
               <h2 className="text-2xl mb-4 text-white">3. Non-Returnable Items</h2>
               <p className="mb-3">The following items cannot be returned:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Intimate apparel (socks, stockings) for hygiene reasons</li>
+                <li>Intimate apparel (socks) for hygiene reasons</li>
                 <li>Sale or clearance items marked as final sale</li>
                 <li>Gift cards or vouchers</li>
                 <li>Products damaged due to misuse or negligence</li>

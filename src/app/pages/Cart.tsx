@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ArrowLeft } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ArrowLeft, LogOut } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
@@ -8,6 +9,7 @@ import { Link } from "react-router";
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, getCartTotal, discount, applyCoupon } = useCart();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [couponCode, setCouponCode] = useState("");
   const [couponMessage, setCouponMessage] = useState("");
@@ -25,6 +27,23 @@ export default function Cart() {
       setCouponCode("");
     }
     setTimeout(() => setCouponMessage(""), 3000);
+  };
+
+  const handleCheckout = () => {
+    if (!user) {
+      navigate("/auth");
+    } else {
+      navigate("/checkout");
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -83,7 +102,7 @@ export default function Cart() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <h1 className="text-5xl mb-2">Shopping Cart</h1>
+          <h1 className="text-5xl mb-2 text-white font-bold">Shopping Cart</h1>
           <p className="text-white/60">
             {cart.length} {cart.length === 1 ? "item" : "items"} in your cart
           </p>
@@ -107,13 +126,13 @@ export default function Cart() {
                 />
 
                 <div className="flex-1">
-                  <h3 className="text-xl mb-2">{item.name}</h3>
-                  <div className="text-sm text-white/60 space-y-1 mb-4">
+                  <h3 className="text-xl mb-2 text-white">{item.name}</h3>
+                  <div className="text-sm text-white space-y-1 mb-4">
                     {item.selectedColor && (
-                      <div>Color: {item.selectedColor}</div>
+                      <div><span className="text-white/60">Color:</span> {item.selectedColor}</div>
                     )}
                     {item.selectedSize && (
-                      <div>Size: {item.selectedSize}</div>
+                      <div><span className="text-white/60">Size:</span> {item.selectedSize}</div>
                     )}
                   </div>
 
@@ -121,20 +140,20 @@ export default function Cart() {
                     <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg p-1">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-2 hover:bg-white/10 rounded transition-colors"
+                        className="p-2 hover:bg-white/10 rounded transition-colors text-white"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-8 text-center">{item.quantity}</span>
+                      <span className="px-3 py-1 text-white font-medium">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-2 hover:bg-white/10 rounded transition-colors"
+                        className="p-2 hover:bg-white/10 rounded transition-colors text-white"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="text-xl">${item.price * item.quantity}</div>
+                    <div className="text-xl text-white">₹{item.price * item.quantity}</div>
                   </div>
                 </div>
 
@@ -156,11 +175,11 @@ export default function Cart() {
             className="lg:col-span-1"
           >
             <div className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg p-6 sticky top-32 hover:border-[var(--border-soft)] transition">
-              <h2 className="text-2xl mb-6">Order Summary</h2>
+              <h2 className="text-2xl mb-6 text-white font-bold">Order Summary</h2>
 
               {/* Coupon Code */}
               <div className="mb-6">
-                <label className="block text-sm mb-2 text-white/80">
+                <label className="block text-sm mb-2 text-white">
                   Coupon Code
                 </label>
                 <div className="flex gap-2">
@@ -169,7 +188,7 @@ export default function Cart() {
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="Enter code"
-                    className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors"
+                    className="flex-1 px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/30 transition-colors"
                   />
                   <button
                     onClick={handleApplyCoupon}
@@ -191,7 +210,7 @@ export default function Cart() {
 
               {/* Active Offers */}
               <div className="mb-6 p-4 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg hover:border-[var(--border-soft)] transition">
-                <h3 className="text-sm mb-3 text-white/80">Available Offers</h3>
+                <h3 className="text-sm mb-3 text-white">Available Offers</h3>
                 <div className="space-y-2 text-sm text-white/60">
                   <div>• DRIP10 - 10% off</div>
                   <div>• DRIP20 - 20% off</div>
@@ -203,37 +222,63 @@ export default function Cart() {
               <div className="space-y-3 mb-6 pb-6 border-b border-white/10">
                 <div className="flex justify-between text-white/60">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-white/80">
                     <span>Discount ({discount}%)</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
+                    <span>-₹{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
               </div>
 
-              <div className="flex justify-between text-2xl mb-6">
+              <div className="flex justify-between text-2xl mb-6 text-white">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate("/checkout")}
+                onClick={handleCheckout}
                 className="w-full bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition flex items-center justify-center gap-2"
               >
-                Proceed to Checkout
+                {user ? "Proceed to Checkout" : "Sign in to Checkout"}
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
 
               <button
                 onClick={() => navigate("/")}
-                className="border border-[var(--border-soft)] text-white px-6 py-3 rounded-lg hover:bg-white/10 transition"
+                className="border border-[var(--border-soft)] text-white px-6 py-3 rounded-lg hover:bg-white/10 transition w-full mt-3"
               >
                 Continue Shopping
               </button>
+
+              {user && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleSignOut}
+                  className="w-full border border-red-500/30 text-red-400 px-6 py-3 rounded-lg hover:border-red-500/60 hover:bg-red-500/10 transition mt-3 flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </motion.button>
+              )}
+
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-white/5 border border-white/10 rounded-lg text-sm"
+                >
+                  <p className="text-white/60 mb-1">Signed in as</p>
+                  <p className="text-white font-medium truncate">{user.email}</p>
+                  {user.displayName && (
+                    <p className="text-white/80">{user.displayName}</p>
+                  )}
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </div>

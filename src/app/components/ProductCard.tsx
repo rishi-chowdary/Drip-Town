@@ -21,7 +21,7 @@ function ProductCard({ product }: ProductCardProps) {
         {/* Image Container */}
         <div className="aspect-square overflow-hidden relative">
           <ImageWithFallback
-            src={product.image}
+            src={product.packSizeImages?.[`${product.colors?.[0]}-${product.packSizes?.[0]}`] || product.colorImages?.[product.colors?.[0] || ""] || product.image}
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -41,16 +41,16 @@ function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Product Info */}
-        <div className="p-6">
-          <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-white/80 transition-colors">
+        <div className="p-6 flex flex-col h-40">
+          <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-white/80 transition-colors line-clamp-2 h-14">
             {product.name}
           </h3>
-          <p className="text-white/60 text-sm mb-4 line-clamp-2">
+          <p className="text-white/60 text-sm mb-4 line-clamp-2 flex-1">
             {product.description}
           </p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto">
             <span className="text-2xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-              ${product.price}
+              ₹{product.price}
             </span>
             {product.colors && (
               <div className="flex gap-1">
@@ -66,8 +66,10 @@ function ProductCard({ product }: ProductCardProps) {
                           ? "#fff"
                           : color === "Grey"
                           ? "#6b7280"
-                          : color === "Navy"
-                          ? "#1e3a8a"
+                          : color === "Dark Grey"
+                          ? "#3f3f46"
+                          : color === "Navy" || color === "Navy Blue"
+                          ? "#001f3f"
                           : color === "Purple"
                           ? "#a855f7"
                           : color === "Chrome" || color === "Silver"
@@ -75,9 +77,25 @@ function ProductCard({ product }: ProductCardProps) {
                           : color === "Gold"
                           ? "#fbbf24"
                           : color === "Brown"
-                          ? "#92400e"
+                          ? "#8B4513"
                           : color === "Multi" || color === "Mixed"
                           ? "linear-gradient(135deg, #ffffff, #9e9e9e, #1a1a1a)"
+                          : color === "Beluga"
+                          ? "#2d2d2d"
+                          : color === "Graphite Grey"
+                          ? "#484848"
+                          : color === "Sky Blue"
+                          ? "#87CEEB"
+                          : color === "Red"
+                          ? "#DC143C"
+                          : color === "Green"
+                          ? "#228B22"
+                          : color === "Pink"
+                          ? "#ff69b4"
+                          : color === "Tan"
+                          ? "#d2b48c"
+                          : color === "Blue"
+                          ? "#4169E1"
                           : "#fff",
                     }}
                   />

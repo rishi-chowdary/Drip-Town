@@ -29,6 +29,9 @@ export default function ProductPage() {
   const [selectedSize, setSelectedSize] = useState<string>(
     product?.sizes?.[0] || ""
   );
+  const [selectedPackSize, setSelectedPackSize] = useState<string>(
+    product?.packSizes?.[0] || ""
+  );
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [imageZoom, setImageZoom] = useState(false);
@@ -119,7 +122,7 @@ export default function ProductPage() {
                   className="aspect-square"
                 >
                   <ImageWithFallback
-                    src={product.image}
+                    src={product.packSizeImages?.[`${selectedColor}-${selectedPackSize}`] || product.colorImages?.[selectedColor] || product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -146,7 +149,7 @@ export default function ProductPage() {
                   {product.name}
                 </h1>
                 <div className="text-4xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent mb-6">
-                  ${product.price}
+                  ₹{product.packSizePrices?.[selectedPackSize] || product.price}
                 </div>
                 <p className="text-white/70 text-lg leading-relaxed">
                   {product.description}
@@ -179,20 +182,36 @@ export default function ProductPage() {
                               ? "#fff"
                               : color === "Grey"
                               ? "#6b7280"
-                              : color === "Navy"
-                              ? "#1e3a8a"
+                              : color === "Dark Grey"
+                              ? "#3f3f46"
+                              : color === "Navy" || color === "Navy Blue"
+                              ? "#001f3f"
                               : color === "Purple"
                               ? "#a855f7"
-                              : color === "Grey"
-                              ? "#9e9e9e"
                               : color === "Chrome" || color === "Silver"
                               ? "linear-gradient(135deg, #ffffff, #9e9e9e, #1a1a1a)"
                               : color === "Gold"
                               ? "#fbbf24"
                               : color === "Brown"
-                              ? "#92400e"
+                              ? "#8B4513"
                               : color === "Multi" || color === "Mixed"
                               ? "linear-gradient(135deg, #ffffff, #9e9e9e, #1a1a1a)"
+                              : color === "Beluga"
+                              ? "#2d2d2d"
+                              : color === "Graphite Grey"
+                              ? "#484848"
+                              : color === "Sky Blue"
+                              ? "#87CEEB"
+                              : color === "Red"
+                              ? "#DC143C"
+                              : color === "Green"
+                              ? "#228B22"
+                              : color === "Pink"
+                              ? "#ff69b4"
+                              : color === "Tan"
+                              ? "#d2b48c"
+                              : color === "Blue"
+                              ? "#4169E1"
                               : "#fff",
                         }}
                       >
@@ -205,6 +224,32 @@ export default function ProductPage() {
                             />
                           </div>
                         )}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pack Size Selection */}
+              {product.packSizes && (
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-3">
+                    Pack Size: {selectedPackSize}
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {product.packSizes.map((packSize) => (
+                      <motion.button
+                        key={packSize}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setSelectedPackSize(packSize)}
+                        className={`px-6 py-3 rounded-lg border-2 transition-all font-medium ${
+                          selectedPackSize === packSize
+                            ? "border-white bg-white/20 text-white"
+                            : "border-white/20 hover:border-white/40"
+                        }`}
+                      >
+                        {packSize} - ₹{product.packSizePrices?.[packSize] || product.price}
                       </motion.button>
                     ))}
                   </div>

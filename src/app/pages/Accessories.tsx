@@ -18,10 +18,10 @@ export default function Accessories() {
       count: getProductsByCategory("socks").length,
     },
     {
-      name: "Stockings",
-      slug: "stockings",
-      description: "Fashion-forward stockings with luxury materials",
-      count: getProductsByCategory("stockings").length,
+      name: "Accessories",
+      slug: "accessories",
+      description: "Pocket Watches, Belts, Wallets, and Hankies",
+      count: getProductsByCategory("accessories").length,
     },
     {
       name: "Riding Gear",
